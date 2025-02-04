@@ -1,175 +1,178 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 :root {
-    --bg: #aaa;
+  --bg: #aaa;
 }
-html { overflow: hidden; }
+html {
+  overflow: hidden;
+}
 body {
-    margin: 0;
-    background-color: var(--bg);
-    font-family: "Roboto", sans-serif;
+  margin: 0;
+  background-color: var(--bg);
+  font-family: "Roboto", sans-serif;
 }
 
 #canvas {
-    position: absolute;
-    filter: drop-shadow(0px 0px 4px #000);
-    background-image: url("./transparent.png");
-    background-size: auto;
-    
-    image-rendering: pixelated;
-    z-index: 1;
-    display: none;
+  position: absolute;
+  filter: drop-shadow(0px 0px 4px #000);
+  background-color: red;
+  z-index: 1;
+  display: none;
 }
 #toolbar {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: calc(100vw - 2em);
-    padding: 1em;
-    background-color: rgba(255, 255, 255, 0.75);
-    z-index: 2;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: calc(100vw - 2em);
+  padding: 1em;
+  background-color: rgba(255, 255, 255, 0.75);
+  z-index: 2;
 
-    display: flex;
-    gap: 2em;
-    a {
-        position: absolute;
-        right: 1em;
-        bottom: 6em;
-    }
+  display: flex;
+  gap: 2em;
+  a {
+    position: absolute;
+    right: 1em;
+    bottom: 6em;
+  }
 }
 #toolbar > div {
-    display: flex;
-    gap: 1em;
+  display: flex;
+  gap: 1em;
 }
 
-input[type=radio] { display: none; }
+input[type="radio"] {
+  display: none;
+}
 label {
-    background-color: #fff;
-    width: 3em;
-    height: 3em;
-    display: flex;
-    filter: drop-shadow(0px 0px 4px #000) brightness(1);
-    transition: 100ms ease-in;
-    user-select: none;
-    position: relative;
-    z-index: 3;
+  background-color: #fff;
+  width: 3em;
+  height: 3em;
+  display: flex;
+  filter: drop-shadow(0px 0px 4px #000) brightness(1);
+  transition: 100ms ease-in;
+  user-select: none;
+  position: relative;
+  z-index: 3;
 }
-label > * { margin: auto; }
-
-input[type=radio]:checked + label {
-    filter: drop-shadow(0px 0px 0px #000) brightness(0.6);
-}
-input[type=radio]:not(:checked) + label {
-    cursor: pointer;
+label > * {
+  margin: auto;
 }
 
-#palette input[type=radio]:checked + label {
-    filter: drop-shadow(0px 0px 0px #000) brightness(1);
+input[type="radio"]:checked + label {
+  filter: drop-shadow(0px 0px 0px #000) brightness(0.6);
+}
+input[type="radio"]:not(:checked) + label {
+  cursor: pointer;
+}
+
+#palette input[type="radio"]:checked + label {
+  filter: drop-shadow(0px 0px 0px #000) brightness(1);
 }
 #palette label > span {
-    text-shadow:
-        0.07em 0 4px #fff,
-        0 0.07em 4px #fff,
-        -0.07em 0 4px #fff,
-        0 -0.07em 4px #fff;
+  text-shadow: 0.07em 0 4px #fff, 0 0.07em 4px #fff, -0.07em 0 4px #fff,
+    0 -0.07em 4px #fff;
 }
 
-.btn { cursor: pointer; }
-.btn:active {
+.btn {
+  cursor: pointer;
+  &.active,
+  &:active {
     filter: drop-shadow(0px 0px 0px #000) brightness(0.6);
+  }
 }
 
 .popup {
-    position: absolute;
-    width: calc(100% - 0.5em);
-    background-color: #fff;
-    transition: .1s ease-out;
-    bottom: calc(100% - 1px);
-    clip-path: inset(100% 0 0 0);
-    z-index: -1;
-    border-radius: 4px 4px 0 0;
+  position: absolute;
+  width: calc(100% - 0.5em);
+  background-color: #fff;
+  transition: 0.1s ease-out;
+  bottom: calc(100% - 1px);
+  clip-path: inset(100% 0 0 0);
+  z-index: -1;
+  border-radius: 4px 4px 0 0;
 
-    display: flex;
-    padding: 0.25em;
-    > * {
-        margin: auto;
-        cursor: pointer;
-    }
+  display: flex;
+  padding: 0.25em;
+  > * {
+    margin: auto;
+    cursor: pointer;
+  }
 }
-#palette input[type=radio]:checked + label:hover > .popup {
-    clip-path: inset(0 0 0 0);
+#palette input[type="radio"]:checked + label:hover > .popup {
+  clip-path: inset(0 0 0 0);
 }
 
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+
+  .modal-footer {
     display: flex;
-    
-    .modal-footer {
-        display: flex;
-        gap: 1em;
-        justify-content: right;
-        margin-top: 1em;
-    }
-    > div {
-        padding: 2em;
-        filter: drop-shadow(0 0 4px #000);
-        background-color: #fff;
+    gap: 1em;
+    justify-content: right;
+    margin-top: 1em;
+  }
+  > div {
+    padding: 2em;
+    filter: drop-shadow(0 0 4px #000);
+    background-color: #fff;
 
-        margin: auto;
-        
-        display: flex;
-        gap: 1em;
+    margin: auto;
 
-        flex-direction: column;
-        gap: 1em;
-        h1 {
-            margin: 0px;
-        }
+    display: flex;
+    gap: 1em;
+
+    flex-direction: column;
+    gap: 1em;
+    h1 {
+      margin: 0px;
     }
+  }
 }
 
 .form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5em;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5em;
 }
 .form:nth-child(2n + 1) {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 @keyframes fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes fade-out {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 textarea {
-    min-width: 250px;
-    min-height: 100px;
+  min-width: 250px;
+  min-height: 100px;
 
-    border: 1px solid #ccc;
+  border: 1px solid #ccc;
 }
 
 input[type="color"] {
-    padding: 0px;
-    border: 0px;
-    width: 100%;
-    cursor: pointer;
-    filter: drop-shadow(0 0 4px #000);
+  padding: 0px;
+  border: 0px;
+  width: 100%;
+  cursor: pointer;
+  filter: drop-shadow(0 0 4px #000);
 }

@@ -1,39 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Array Map Creator</title>
-    <link rel="stylesheet" href="style.css?v=3.0">
-    <script src="./arraymapcreator.js?v=3.0" defer></script>
-    <script src="https://kit.fontawesome.com/6b9987c0fa.js" crossorigin="anonymous" defer></script>
-</head>
-<body>
+    <link rel="stylesheet" href="style.css?v=3.1" />
+    <script src="./array-map-creator.js?v=3.1" defer></script>
+    <script
+      src="https://kit.fontawesome.com/6b9987c0fa.js"
+      crossorigin="anonymous"
+      defer
+    ></script>
+  </head>
+  <body>
     <canvas id="canvas"></canvas>
     <div id="toolbar">
-        <div>
-            <label class="btn" id="btnNew"><i class="fa-solid fa-plus fa-2xl"></i></label>
-            <label class="btn" id="btnImp"><i class="fa-solid fa-file-import fa-2xl"></i></label>
-            <label class="btn" id="btnExp"><i class="fa-solid fa-file-export fa-2xl"></i></label>
-            <label class="btn" id="btnDow"><i class="fa-solid fa-file-download fa-2xl"></i></label>
-        </div>
-        <div>
-            <input type="radio" name="tool" id="tool_pan" />
-            <label for="tool_pan"><i class="fa-solid fa-hand fa-2xl"></i></label>
-            <input type="radio" name="tool" id="tool_draw" checked />
-            <label for="tool_draw"><i class="fa-solid fa-pencil fa-2xl"></i></label>
-            <input type="radio" name="tool" id="tool_erase" />
-            <label for="tool_erase"><i class="fa-solid fa-eraser fa-2xl"></i></label>
-            <input type="radio" name="tool" id="tool_fill" />
-            <label for="tool_fill"><i class="fa-solid fa-fill fa-2xl"></i></label>
-        </div>
-        <div id="palette"></div>
-        <div style="margin-left: auto;">
-            <label class="btn" onclick="toggleGrid()"><i class="fa-solid fa-border-all fa-2xl"></i></label>
-            <label class="btn" onclick="zoom(10)"><i class="fa-solid fa-plus fa-2xl"></i></label>
-            <label class="btn" onclick="zoom(-10)"><i class="fa-solid fa-minus fa-2xl"></i></label>
-        </div>
-        <a href="https://edscamera.github.io" target="_blank">edscamera.github.io</a>
+      <div>
+        <label class="btn" id="btnNew"
+          ><i class="fa-solid fa-plus fa-2xl"></i
+        ></label>
+        <label class="btn" id="btnImp"
+          ><i class="fa-solid fa-file-import fa-2xl"></i
+        ></label>
+        <label class="btn" id="btnExp"
+          ><i class="fa-solid fa-file-export fa-2xl"></i
+        ></label>
+        <label class="btn" id="btnDow"
+          ><i class="fa-solid fa-file-download fa-2xl"></i
+        ></label>
+      </div>
+      <div>
+        <input type="radio" name="tool" id="tool_pan" />
+        <label class="btn" for="tool_pan"
+          ><i class="fa-solid fa-hand fa-2xl"></i
+        ></label>
+        <input type="radio" name="tool" id="tool_draw" checked />
+        <label class="btn" for="tool_draw"
+          ><i class="fa-solid fa-pencil fa-2xl"></i
+        ></label>
+        <input type="radio" name="tool" id="tool_erase" />
+        <label class="btn" for="tool_erase"
+          ><i class="fa-solid fa-eraser fa-2xl"></i
+        ></label>
+        <input type="radio" name="tool" id="tool_fill" />
+        <label class="btn" for="tool_fill"
+          ><i class="fa-solid fa-fill fa-2xl"></i
+        ></label>
+      </div>
+      <div id="palette"></div>
+      <div style="margin-left: auto">
+        <label class="btn" onclick="toggleGrid()" id="btnGrid"
+          ><i class="fa-solid fa-border-all fa-2xl"></i
+        ></label>
+        <label class="btn" onclick="zoom(10)"
+          ><i class="fa-solid fa-plus fa-2xl"></i
+        ></label>
+        <label class="btn" onclick="zoom(-10)"
+          ><i class="fa-solid fa-minus fa-2xl"></i
+        ></label>
+      </div>
+      <a href="https://edlessz.com" target="_blank" rel="noopener noreferrer">
+        edlessz.com
+      </a>
     </div>
-</body>
+  </body>
 </html>
