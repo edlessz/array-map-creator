@@ -371,15 +371,24 @@ $("#btnImp").addEventListener("click", () => {
 
 // Export
 $("#btnExp").addEventListener("click", () => {
+  const map2DToDict = (grid) =>
+    grid.reduce((acc, row, y) => {
+      row.map((val, x) => {
+        if (Number.isInteger(val)) acc[`${x},${y}`] = val;
+      });
+      return acc;
+    }, {});
   modal(
     "Export",
     `
         <textarea readonly id="modal_exp_map"></textarea><br />
+        <textarea readonly id="modal_exp_map_dict"></textarea><br />
         <textarea readonly id="modal_exp_color"></textarea>
     `,
     { autoHide: true }
   );
   $("#modal_exp_map").value = JSON.stringify(map).replace(/],/g, "],\n");
+  $("#modal_exp_map_dict").value = JSON.stringify(map2DToDict(map), null, 1);
   $("#modal_exp_color").value = JSON.stringify(colorMap, null, 1);
 });
 
