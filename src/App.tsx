@@ -4,7 +4,7 @@ import Controls, { type Tool } from "./Controls/Controls";
 import TileMap from "./TileMap/TileMap";
 
 function App() {
-	const [map, _setMap] = useState([
+	const [map, setMap] = useState([
 		[1, 1, 1, 1],
 		[1, null, null, 1],
 		[1, null, null, 1],
@@ -28,7 +28,12 @@ function App() {
 					overflow: "hidden",
 				}}
 			>
-				<TileMap map={map} palette={palette} selectedTool={selectedTool} />
+				<TileMap
+					map={map}
+					setMap={setMap}
+					palette={palette}
+					selectedTool={selectedTool}
+				/>
 			</div>
 			<Controls selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
 		</>

@@ -4,6 +4,7 @@ import type { Tool } from "../Controls/Controls";
 
 interface MapProps {
 	map: (number | null)[][];
+	setMap: React.Dispatch<React.SetStateAction<(number | null)[][]>>;
 	palette: Record<number, string>;
 	selectedTool: Tool;
 }
@@ -17,7 +18,7 @@ const getContrastColor = (hexColor: string): string => {
 	return brightness > 128 ? "#000000" : "#ffffff";
 };
 
-function TileMap({ map, palette, selectedTool }: MapProps) {
+function TileMap({ map, setMap, palette, selectedTool }: MapProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationFrameRef = useRef<number | null>(null);
 	const [ppu, setPpu] = useState(32);
@@ -95,13 +96,14 @@ function TileMap({ map, palette, selectedTool }: MapProps) {
 	}, [render]);
 
 	useEffect(() => {
-		const handlePan = (mouseDownEvent: MouseEvent) => {
+		const handleMouseDown = (mouseDownEvent: MouseEvent) => {
 			const mouseMove = (moveEvent: MouseEvent) => {
-				if (mouseDownEvent.button === 2 || selectedTool === "pan")
+				if (mouseDownEvent.button === 2 || selectedTool === "pan") {
 					setPosition((prev) => ({
 						x: prev.x + moveEvent.movementX,
 						y: prev.y + moveEvent.movementY,
 					}));
+				} else if (mouseDownEvent.button === 0 && hoveredTile) handleClick();
 			};
 			window.addEventListener("mousemove", mouseMove);
 			window.addEventListener(
@@ -109,6 +111,30 @@ function TileMap({ map, palette, selectedTool }: MapProps) {
 				() => window.removeEventListener("mousemove", mouseMove),
 				{ once: true },
 			);
+		};
+
+		const handleClick = () => {
+			if (hoveredTile)
+				switch (selectedTool) {
+					case "paint":
+						setMap((currentMap) =>
+							currentMap.map((row, y) =>
+								row.map((cell, x) =>
+									x === hoveredTile.x && y === hoveredTile.y ? 1 : cell,
+								),
+							),
+						);
+						break;
+					case "erase":
+						setMap((currentMap) =>
+							currentMap.map((row, y) =>
+								row.map((cell, x) =>
+									x === hoveredTile.x && y === hoveredTile.y ? null : cell,
+								),
+							),
+						);
+						break;
+				}
 		};
 		const handleContextMenu = (e: MouseEvent) => e.preventDefault();
 		const handleWheel = (e: WheelEvent) => {
@@ -147,17 +173,19 @@ function TileMap({ map, palette, selectedTool }: MapProps) {
 			} else setHoveredTile(null);
 		};
 
-		window.addEventListener("mousedown", handlePan);
+		window.addEventListener("mousedown", handleMouseDown);
+		window.addEventListener("click", handleClick);
 		window.addEventListener("contextmenu", handleContextMenu);
 		window.addEventListener("wheel", handleWheel, { passive: false });
 		window.addEventListener("mousemove", handleMouseMove);
 		return () => {
-			window.removeEventListener("mousedown", handlePan);
+			window.removeEventListener("mousedown", handleMouseDown);
+			window.removeEventListener("click", handleClick);
 			window.removeEventListener("contextmenu", handleContextMenu);
 			window.removeEventListener("wheel", handleWheel);
 			window.removeEventListener("mousemove", handleMouseMove);
 		};
-	});
+	}, [selectedTool, setMap, hoveredTile, ppu]);
 
 	return (
 		<div className="TileMap">
