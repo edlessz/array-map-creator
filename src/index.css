@@ -3,3 +3,14 @@ body {
 	overflow: hidden;
 	background-color: #f0f0f0;
 }
+
+.ed-form {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	align-items: center;
+	width: min-content;
+}
+.ed-form > span {
+	font-weight: bold;
+}

@@ -1,22 +1,19 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import Controls, { type Tool } from "./Controls/Controls";
 import TileMap from "./TileMap/TileMap";
 
 function App() {
-	const [map, setMap] = useState([
-		[1, 1, 1, 1],
-		[1, null, null, 1],
-		[1, null, null, 1],
-		[1, 1, 1, 1],
-	]);
+	const mapRef = useRef([]);
 
-	const [palette, _setPalette] = useState({
+	const [palette, setPalette] = useState<Record<number, string>>({
 		0: "#FFFFFF", // White
 		1: "#000000", // Black
 	});
 
 	const [selectedTool, setSelectedTool] = useState<Tool>("paint");
+	const [selectedColor, setSelectedColor] = useState<number>(1);
 
 	return (
 		<>
@@ -29,15 +26,32 @@ function App() {
 				}}
 			>
 				<TileMap
-					map={map}
-					setMap={setMap}
+					mapRef={mapRef}
 					palette={palette}
 					selectedTool={selectedTool}
+					selectedColor={selectedColor}
 				/>
 			</div>
-			<Controls selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
+			<Controls
+				selectedTool={selectedTool}
+				setSelectedTool={setSelectedTool}
+				palette={palette}
+				setPalette={setPalette}
+				selectedColor={selectedColor}
+				setSelectedColor={setSelectedColor}
+			/>
+			<ConfirmDialog />
 		</>
 	);
 }
 
 export default App;
+
+export const getContrastColor = (hexColor: string): string => {
+	const hex = hexColor.replace("#", "");
+	const r = parseInt(hex.substring(0, 2), 16);
+	const g = parseInt(hex.substring(2, 4), 16);
+	const b = parseInt(hex.substring(4, 6), 16);
+	const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+	return brightness > 128 ? "#000000" : "#ffffff";
+};

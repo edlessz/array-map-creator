@@ -1,37 +1,40 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	type RefObject,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import "./TileMap.css";
+import { getContrastColor } from "../App";
 import type { Tool } from "../Controls/Controls";
 
 interface MapProps {
-	map: (number | null)[][];
-	setMap: React.Dispatch<React.SetStateAction<(number | null)[][]>>;
+	mapRef: RefObject<(number | null)[][]>;
 	palette: Record<number, string>;
 	selectedTool: Tool;
+	selectedColor: number;
 }
 
-const getContrastColor = (hexColor: string): string => {
-	const hex = hexColor.replace("#", "");
-	const r = parseInt(hex.substring(0, 2), 16);
-	const g = parseInt(hex.substring(2, 4), 16);
-	const b = parseInt(hex.substring(4, 6), 16);
-	const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-	return brightness > 128 ? "#000000" : "#ffffff";
-};
-
-function TileMap({ map, setMap, palette, selectedTool }: MapProps) {
+function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const canvasContainerRef = useRef<HTMLDivElement>(null);
+
 	const animationFrameRef = useRef<number | null>(null);
 	const [ppu, setPpu] = useState(32);
 	const [position, setPosition] = useState({
-		x: window.innerWidth / 2 - ((map[0]?.length ?? 0) * ppu) / 2,
-		y: window.innerHeight / 2 - (map.length * ppu) / 2,
+		x: window.innerWidth / 2 - ((mapRef.current[0]?.length ?? 0) * ppu) / 2,
+		y: window.innerHeight / 2 - (mapRef.current.length * ppu) / 2,
 	});
-	const [hoveredTile, setHoveredTile] = useState<{
+	const hoveredTileRef = useRef<{
 		x: number;
 		y: number;
 	} | null>(null);
 
 	const render = useCallback(() => {
+		const map = mapRef.current;
+		const hoveredTile = hoveredTileRef.current;
+
 		const canvas = canvasRef.current;
 		if (!canvas) return;
 		const ctx = canvas.getContext("2d");
@@ -80,7 +83,7 @@ function TileMap({ map, setMap, palette, selectedTool }: MapProps) {
 			ctx.fillRect(hoveredTile.x * ppu, hoveredTile.y * ppu, ppu, ppu);
 			ctx.globalAlpha = 1.0;
 		}
-	}, [map, palette, ppu, position, hoveredTile, selectedTool]);
+	}, [palette, ppu, position, selectedTool, mapRef]);
 
 	useEffect(() => {
 		const animate = () => {
@@ -103,7 +106,8 @@ function TileMap({ map, setMap, palette, selectedTool }: MapProps) {
 						x: prev.x + moveEvent.movementX,
 						y: prev.y + moveEvent.movementY,
 					}));
-				} else if (mouseDownEvent.button === 0 && hoveredTile) handleClick();
+				} else if (mouseDownEvent.button === 0 && hoveredTileRef.current)
+					handleClick();
 			};
 			window.addEventListener("mousemove", mouseMove);
 			window.addEventListener(
@@ -114,26 +118,40 @@ function TileMap({ map, setMap, palette, selectedTool }: MapProps) {
 		};
 
 		const handleClick = () => {
+			const hoveredTile = hoveredTileRef.current;
 			if (hoveredTile)
 				switch (selectedTool) {
 					case "paint":
-						setMap((currentMap) =>
-							currentMap.map((row, y) =>
-								row.map((cell, x) =>
-									x === hoveredTile.x && y === hoveredTile.y ? 1 : cell,
-								),
-							),
-						);
+						mapRef.current[hoveredTile.y][hoveredTile.x] = selectedColor;
 						break;
 					case "erase":
-						setMap((currentMap) =>
-							currentMap.map((row, y) =>
-								row.map((cell, x) =>
-									x === hoveredTile.x && y === hoveredTile.y ? null : cell,
-								),
-							),
-						);
+						mapRef.current[hoveredTile.y][hoveredTile.x] = null;
 						break;
+					case "fill": {
+						const targetColor = mapRef.current[hoveredTile.y][hoveredTile.x];
+						const fillColor = selectedColor;
+
+						const floodFill = (x: number, y: number) => {
+							if (
+								x < 0 ||
+								x >= mapRef.current[0].length ||
+								y < 0 ||
+								y >= mapRef.current.length
+							)
+								return;
+							if (
+								mapRef.current[y][x] === fillColor ||
+								mapRef.current[y][x] !== targetColor
+							)
+								return;
+							mapRef.current[y][x] = fillColor;
+							floodFill(x - 1, y);
+							floodFill(x + 1, y);
+							floodFill(x, y - 1);
+							floodFill(x, y + 1);
+						};
+						floodFill(hoveredTile.x, hoveredTile.y);
+					}
 				}
 		};
 		const handleContextMenu = (e: MouseEvent) => e.preventDefault();
@@ -161,35 +179,47 @@ function TileMap({ map, setMap, palette, selectedTool }: MapProps) {
 			const mouseX = e.clientX - rect.left;
 			const mouseY = e.clientY - rect.top;
 
+			hoveredTileRef.current = null;
+			const mouseInCanvas = Array.from(
+				document.querySelectorAll(":hover"),
+			).includes(canvas);
 			if (
 				mouseX >= 0 &&
 				mouseX < rect.width &&
 				mouseY >= 0 &&
-				mouseY < rect.height
+				mouseY < rect.height &&
+				mouseInCanvas
 			) {
 				const tileX = Math.floor(mouseX / ppu);
 				const tileY = Math.floor(mouseY / ppu);
-				setHoveredTile({ x: tileX, y: tileY });
-			} else setHoveredTile(null);
+				if (
+					tileX >= 0 &&
+					tileX < mapRef.current[0].length &&
+					tileY >= 0 &&
+					tileY < mapRef.current.length
+				)
+					hoveredTileRef.current = { x: tileX, y: tileY };
+			}
 		};
 
-		window.addEventListener("mousedown", handleMouseDown);
-		window.addEventListener("click", handleClick);
-		window.addEventListener("contextmenu", handleContextMenu);
-		window.addEventListener("wheel", handleWheel, { passive: false });
+		const canvasContainer = canvasContainerRef.current;
+		canvasContainer?.addEventListener("mousedown", handleMouseDown);
+		canvasContainer?.addEventListener("click", handleClick);
+		canvasContainer?.addEventListener("contextmenu", handleContextMenu);
+		canvasContainer?.addEventListener("wheel", handleWheel, { passive: false });
 		window.addEventListener("mousemove", handleMouseMove);
 		return () => {
-			window.removeEventListener("mousedown", handleMouseDown);
-			window.removeEventListener("click", handleClick);
-			window.removeEventListener("contextmenu", handleContextMenu);
-			window.removeEventListener("wheel", handleWheel);
+			canvasContainer?.removeEventListener("mousedown", handleMouseDown);
+			canvasContainer?.removeEventListener("click", handleClick);
+			canvasContainer?.removeEventListener("contextmenu", handleContextMenu);
+			canvasContainer?.removeEventListener("wheel", handleWheel);
 			window.removeEventListener("mousemove", handleMouseMove);
 		};
-	}, [selectedTool, setMap, hoveredTile, ppu]);
+	}, [selectedTool, ppu, mapRef, selectedColor]);
 
 	return (
-		<div className="TileMap">
-			<canvas ref={canvasRef} className="TileMap" />
+		<div className="TileMap" ref={canvasContainerRef}>
+			<canvas ref={canvasRef} />
 		</div>
 	);
 }
