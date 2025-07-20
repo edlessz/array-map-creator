@@ -3,7 +3,7 @@ import "./TileMapCanvas.css";
 import { useTileMap } from "../../contexts/TileMapContext";
 import { useCanvasInteraction } from "../../hooks/useCanvasInteraction";
 import type { TileMap } from "../../types";
-import { getContrastColor } from "../../utils";
+import { encodeAddress, getContrastColor } from "../../utils";
 
 interface TileMapCanvasProps {
 	mapRef: RefObject<TileMap>;
@@ -34,8 +34,8 @@ function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
 		const ctx = canvas.getContext("2d");
 		if (!ctx) return;
 
-		const width = (map[0]?.length ?? 0) * ppu;
-		const height = map.length * ppu;
+		const width = (map.width ?? 0) * ppu;
+		const height = (map.height ?? 0) * ppu;
 
 		canvas.width = width;
 		canvas.height = height;
@@ -45,15 +45,17 @@ function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
 		canvas.style.top = `${position.y}px`;
 
 		ctx.clearRect(0, 0, width, height);
-		for (let y = 0; y < map.length; y++) {
-			for (let x = 0; x < map[y].length; x++) {
-				if (map[y][x] !== null && !palette[map[y][x] as number])
-					map[y][x] = null; // Remove invalid tiles
-				const tile = map[y][x];
-				if (tile !== null) {
-					ctx.fillStyle = palette[tile];
-					ctx.fillRect(x * ppu, y * ppu, ppu, ppu);
-				} else {
+		for (let y = 0; y < map.height; y++) {
+			for (let x = 0; x < map.width; x++) {
+				const address = encodeAddress(x, y);
+				if (address in map.data) {
+					const value = map.data[address];
+					if (value < Object.keys(palette).length) {
+						ctx.fillStyle = palette[value];
+						ctx.fillRect(x * ppu, y * ppu, ppu, ppu);
+					} else delete map.data[address];
+				}
+				if (!(address in map.data)) {
 					ctx.fillStyle = "#ddd";
 					ctx.fillRect(x * ppu, y * ppu, ppu, ppu);
 					ctx.fillStyle = "#fff";
@@ -64,12 +66,12 @@ function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
 		}
 
 		if (hoveredTile && selectedTool !== "pan") {
-			const tileValue = map[hoveredTile.y][hoveredTile.x];
-			if (tileValue === null) {
+			const address = encodeAddress(hoveredTile.x, hoveredTile.y);
+			if (!(address in map.data)) {
 				ctx.fillStyle = "#000";
 			} else {
-				const tileColor =
-					tileValue !== null ? (palette[tileValue] ?? "#000") : "#000";
+				const value = map.data[address];
+				const tileColor = value !== null ? (palette[value] ?? "#000") : "#000";
 				ctx.fillStyle = getContrastColor(tileColor);
 			}
 

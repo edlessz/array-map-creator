@@ -1,3 +1,7 @@
-export type TileMap = (number | null)[][] | null;
+export type TileMap = {
+	data: Record<string, number>;
+	width: number;
+	height: number;
+} | null;
 
 export type Tool = "pan" | "paint" | "erase" | "fill";

@@ -20,8 +20,8 @@ export interface NewTileMapDialogRef {
 const NewTileMapDialog = forwardRef<NewTileMapDialogRef, NewTileMapDialogProps>(
 	({ mapRef }, ref) => {
 		const [dialogVisible, setDialogVisible] = useState(false);
-		const [width, setWidth] = useState(mapRef.current?.[0].length ?? 1);
-		const [height, setHeight] = useState(mapRef.current?.length ?? 1);
+		const [width, setWidth] = useState(mapRef.current?.width ?? 1);
+		const [height, setHeight] = useState(mapRef.current?.height ?? 1);
 
 		useImperativeHandle(ref, () => ({
 			open: () => setDialogVisible(true),
@@ -29,10 +29,11 @@ const NewTileMapDialog = forwardRef<NewTileMapDialogRef, NewTileMapDialogProps>(
 
 		const handleCreate = () => {
 			const createNewMap = () => {
-				const newMap: TileMap = Array.from({ length: height }, () =>
-					Array.from({ length: width }, () => null),
-				);
-				mapRef.current = newMap;
+				mapRef.current = {
+					data: {},
+					width,
+					height,
+				};
 				setDialogVisible(false);
 			};
 			if (mapRef.current) {

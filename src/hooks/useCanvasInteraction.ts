@@ -1,6 +1,7 @@
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { DEFAULT_PPU, MIN_PPU, ZOOM_FACTOR } from "../constants";
 import type { TileMap, Tool } from "../types";
+import { encodeAddress } from "../utils";
 
 interface UseCanvasInteractionProps {
 	mapRef: RefObject<TileMap>;
@@ -19,8 +20,8 @@ export const useCanvasInteraction = ({
 }: UseCanvasInteractionProps) => {
 	const [ppu, setPpu] = useState(DEFAULT_PPU);
 	const [position, setPosition] = useState({
-		x: window.innerWidth / 2 - ((mapRef.current?.[0]?.length ?? 0) * ppu) / 2,
-		y: window.innerHeight / 2 - ((mapRef.current?.length ?? 0) * ppu) / 2,
+		x: window.innerWidth / 2 - ((mapRef.current?.width ?? 0) * ppu) / 2,
+		y: window.innerHeight / 2 - ((mapRef.current?.height ?? 0) * ppu) / 2,
 	});
 	const hoveredTileRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -28,33 +29,34 @@ export const useCanvasInteraction = ({
 		const handleClick = () => {
 			if (!mapRef.current) return;
 			const hoveredTile = hoveredTileRef.current;
-			if (hoveredTile)
+			if (hoveredTile) {
+				const address = encodeAddress(hoveredTile.x, hoveredTile.y);
 				switch (selectedTool) {
 					case "paint":
-						mapRef.current[hoveredTile.y][hoveredTile.x] = selectedColor;
+						mapRef.current.data[address] = selectedColor;
 						break;
 					case "erase":
-						mapRef.current[hoveredTile.y][hoveredTile.x] = null;
+						delete mapRef.current.data[address];
 						break;
 					case "fill": {
-						const targetColor = mapRef.current[hoveredTile.y][hoveredTile.x];
+						const targetColor = mapRef.current.data[address];
 						const fillColor = selectedColor;
 
 						const floodFill = (x: number, y: number) => {
 							if (!mapRef.current) return;
 							if (
 								x < 0 ||
-								x >= mapRef.current[0].length ||
+								x >= mapRef.current.width ||
 								y < 0 ||
-								y >= mapRef.current.length
+								y >= mapRef.current.height
 							)
 								return;
 							if (
-								mapRef.current[y][x] === fillColor ||
-								mapRef.current[y][x] !== targetColor
+								mapRef.current.data[encodeAddress(x, y)] === fillColor ||
+								mapRef.current.data[encodeAddress(x, y)] !== targetColor
 							)
 								return;
-							mapRef.current[y][x] = fillColor;
+							mapRef.current.data[encodeAddress(x, y)] = fillColor;
 							floodFill(x - 1, y);
 							floodFill(x + 1, y);
 							floodFill(x, y - 1);
@@ -63,6 +65,7 @@ export const useCanvasInteraction = ({
 						floodFill(hoveredTile.x, hoveredTile.y);
 					}
 				}
+			}
 		};
 
 		const handleMouseDown = (mouseDownEvent: MouseEvent) => {
@@ -124,9 +127,9 @@ export const useCanvasInteraction = ({
 				const tileY = Math.floor(mouseY / ppu);
 				if (
 					tileX >= 0 &&
-					tileX < mapRef.current[0].length &&
+					tileX < mapRef.current.width &&
 					tileY >= 0 &&
-					tileY < mapRef.current.length
+					tileY < mapRef.current.height
 				)
 					hoveredTileRef.current = { x: tileX, y: tileY };
 			}

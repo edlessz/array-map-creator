@@ -6,3 +6,10 @@ export const getContrastColor = (hexColor: string): string => {
 	const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 	return brightness > 128 ? "#000000" : "#ffffff";
 };
+
+export const encodeAddress = (x: number, y: number): string => `${x},${y}`;
+
+export const decodeAddress = (address: string): { x: number; y: number } => {
+	const [x, y] = address.split(",").map(Number);
+	return { x, y };
+};
