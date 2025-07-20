@@ -1,14 +1,14 @@
+import { Button } from "primereact/button";
+import { confirmDialog } from "primereact/confirmdialog";
 import { Dialog } from "primereact/dialog";
 import { InputNumber } from "primereact/inputnumber";
 import {
 	forwardRef,
+	type RefObject,
 	useImperativeHandle,
 	useState,
-	type RefObject,
 } from "react";
 import type { TileMap } from "../../App";
-import { Button } from "primereact/button";
-import { confirmDialog } from "primereact/confirmdialog";
 
 interface NewTileMapDialogProps {
 	mapRef: RefObject<TileMap>;
