@@ -10,14 +10,13 @@ import {
 	Hand,
 	PaintBucket,
 	Plus,
-	TriangleAlert,
 	Upload,
 } from "lucide-react";
-import { ColorPicker } from "primereact/colorpicker";
-import { confirmDialog } from "primereact/confirmdialog";
-import { Dialog } from "primereact/dialog";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import { getContrastColor } from "../App";
+import EditColorDialog, {
+	type EditColorDialogRef,
+} from "./EditColorDialog/EditColorDialog";
 
 export type Tool = "pan" | "paint" | "erase" | "fill";
 
@@ -48,61 +47,12 @@ function Controls({
 	];
 
 	const selectColor = (colorId: number) => {
-		if (selectedColor === colorId) {
-			setDialogColor(palette[colorId]);
-			setDialogVisible(true);
-			setDialogUpdating(true);
-			return;
-		}
-		setSelectedColor(colorId);
+		if (selectedColor === colorId) editColorDialogRef.current?.edit(colorId);
+		else setSelectedColor(colorId);
 	};
-
-	const [dialogVisible, setDialogVisible] = useState(false);
 	const [hoveredColor, setHoveredColor] = useState<number | null>(null);
-	const [dialogColor, setDialogColor] = useState<string>("#FF0000");
-	const [dialogUpdating, setDialogUpdating] = useState(false);
 
-	const footerContent = (
-		<>
-			<Button
-				label={dialogUpdating ? "Save Color" : "Add Color"}
-				onClick={() => {
-					if (dialogUpdating)
-						setPalette({ ...palette, [selectedColor]: dialogColor });
-					else {
-						setPalette({
-							...palette,
-							[Object.keys(palette).length]: dialogColor,
-						});
-						setSelectedColor(Object.keys(palette).length);
-					}
-
-					setDialogVisible(false);
-				}}
-				disabled={!dialogColor}
-				severity="success"
-			/>
-			<Button
-				label="Delete Color"
-				onClick={() => {
-					confirmDialog({
-						header: "Delete Color",
-						icon: <TriangleAlert />,
-						message: "Are you sure you want to delete this color?",
-						accept: () => {
-							const newPalette = { ...palette };
-							delete newPalette[selectedColor];
-							setPalette(newPalette);
-							setDialogVisible(false);
-						},
-					});
-				}}
-				visible={dialogUpdating}
-				disabled={Object.keys(palette).length <= 1}
-				severity="danger"
-			/>
-		</>
-	);
+	const editColorDialogRef = useRef<EditColorDialogRef>(null);
 
 	return (
 		<>
@@ -145,28 +95,16 @@ function Controls({
 					))}
 					<Button
 						icon={<Plus />}
-						onClick={() => {
-							setDialogVisible(true);
-							setDialogUpdating(false);
-						}}
+						onClick={() => editColorDialogRef.current?.add()}
 					/>
 				</div>
 			</div>
-			<Dialog
-				visible={dialogVisible}
-				header={dialogUpdating ? "Update Color" : "Add Color"}
-				onHide={() => setDialogVisible(false)}
-				footer={footerContent}
-			>
-				<div className="ed-form">
-					<span>Color:</span>
-					<ColorPicker
-						value={dialogColor}
-						format="hex"
-						onChange={(e) => setDialogColor(`#${e.value}`)}
-					/>
-				</div>
-			</Dialog>
+			<EditColorDialog
+				ref={editColorDialogRef}
+				palette={palette}
+				setPalette={setPalette}
+				setSelectedColor={setSelectedColor}
+			/>
 		</>
 	);
 }
