@@ -1,4 +1,4 @@
-.Controls {
+.Toolbar {
 	position: fixed;
 	bottom: 0;
 	left: 0;
@@ -12,12 +12,12 @@
 	align-items: center;
 	gap: 1.5rem;
 }
-.Controls > div {
+.Toolbar > div {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 }
 
-.Controls button {
+.Toolbar button {
 	aspect-ratio: 1;
 }

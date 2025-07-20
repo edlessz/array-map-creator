@@ -1,5 +1,5 @@
 import { Button } from "primereact/button";
-import "./Controls.css";
+import "./Toolbar.css";
 import {
 	Brush,
 	Check,
@@ -12,14 +12,10 @@ import {
 	Plus,
 	Upload,
 } from "lucide-react";
-import {
-	type Dispatch,
-	type RefObject,
-	type SetStateAction,
-	useRef,
-	useState,
-} from "react";
-import { getContrastColor, type TileMap } from "../App";
+import { type JSX, type RefObject, useRef, useState } from "react";
+import { useTileMap } from "../../contexts/TileMapContext";
+import type { TileMap, Tool } from "../../types";
+import { getContrastColor } from "../../utils";
 import EditColorDialog, {
 	type EditColorDialogRef,
 } from "./EditColorDialog/EditColorDialog";
@@ -27,26 +23,17 @@ import NewTileMapDialog, {
 	type NewTileMapDialogRef,
 } from "./NewTileMapDialog/NewTileMapDialog";
 
-export type Tool = "pan" | "paint" | "erase" | "fill";
-
-interface ControlsProps {
+interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
-	selectedTool: Tool;
-	setSelectedTool: Dispatch<SetStateAction<Tool>>;
-	palette: Record<number, string>;
-	setPalette: Dispatch<SetStateAction<Record<number, string>>>;
-	selectedColor: number;
-	setSelectedColor: Dispatch<SetStateAction<number>>;
 }
-function Controls({
-	mapRef,
-	selectedTool,
-	setSelectedTool,
-	palette,
-	setPalette,
-	selectedColor,
-	setSelectedColor,
-}: ControlsProps) {
+function Toolbar({ mapRef }: ToolbarProps) {
+	const {
+		palette,
+		selectedTool,
+		setSelectedTool,
+		selectedColor,
+		setSelectedColor,
+	} = useTileMap();
 	const toolButtons: {
 		icon: React.ReactNode;
 		tool: Tool;
@@ -66,9 +53,15 @@ function Controls({
 	const editColorDialogRef = useRef<EditColorDialogRef>(null);
 	const newTileMapDialogRef = useRef<NewTileMapDialogRef>(null);
 
+	const getPaletteIcon = (colorId: number): JSX.Element => {
+		if (selectedColor === colorId)
+			return hoveredColor === colorId ? <Edit /> : <Check />;
+		return <span>{colorId}</span>;
+	};
+
 	return (
 		<>
-			<div className="Controls">
+			<div className="Toolbar">
 				<div>
 					<Button
 						icon={<FilePlus />}
@@ -95,17 +88,7 @@ function Controls({
 							onClick={() => selectColor(parseInt(colorId))}
 							onMouseEnter={() => setHoveredColor(parseInt(colorId))}
 							onMouseLeave={() => setHoveredColor(null)}
-							icon={
-								selectedColor === parseInt(colorId) ? (
-									hoveredColor === parseInt(colorId) ? (
-										<Edit />
-									) : (
-										<Check />
-									)
-								) : (
-									<span>{colorId}</span>
-								)
-							}
+							icon={getPaletteIcon(parseInt(colorId))}
 						/>
 					))}
 					<Button
@@ -114,15 +97,10 @@ function Controls({
 					/>
 				</div>
 			</div>
-			<EditColorDialog
-				ref={editColorDialogRef}
-				palette={palette}
-				setPalette={setPalette}
-				setSelectedColor={setSelectedColor}
-			/>
+			<EditColorDialog ref={editColorDialogRef} />
 			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} />
 		</>
 	);
 }
 
-export default Controls;
+export default Toolbar;

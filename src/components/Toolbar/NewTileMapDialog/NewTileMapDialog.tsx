@@ -8,7 +8,7 @@ import {
 	useImperativeHandle,
 	useState,
 } from "react";
-import type { TileMap } from "../../App";
+import type { TileMap } from "../../../types";
 
 interface NewTileMapDialogProps {
 	mapRef: RefObject<TileMap>;
