@@ -16,7 +16,6 @@ interface EditColorDialogProps {
 	setPalette: Dispatch<SetStateAction<Record<number, string>>>;
 	setSelectedColor: Dispatch<SetStateAction<number>>;
 }
-
 export interface EditColorDialogRef {
 	edit: (colorId: number) => void;
 	add: () => void;

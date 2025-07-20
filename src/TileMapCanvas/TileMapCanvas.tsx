@@ -5,26 +5,31 @@ import {
 	useRef,
 	useState,
 } from "react";
-import "./TileMap.css";
-import { getContrastColor } from "../App";
+import "./TileMapCanvas.css";
+import { getContrastColor, type TileMap } from "../App";
 import type { Tool } from "../Controls/Controls";
 
-interface MapProps {
-	mapRef: RefObject<(number | null)[][]>;
+interface TileMapCanvas {
+	mapRef: RefObject<TileMap>;
 	palette: Record<number, string>;
 	selectedTool: Tool;
 	selectedColor: number;
 }
 
-function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
+function TileMapCanvas({
+	mapRef,
+	palette,
+	selectedTool,
+	selectedColor,
+}: TileMapCanvas) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasContainerRef = useRef<HTMLDivElement>(null);
 
 	const animationFrameRef = useRef<number | null>(null);
 	const [ppu, setPpu] = useState(32);
 	const [position, setPosition] = useState({
-		x: window.innerWidth / 2 - ((mapRef.current[0]?.length ?? 0) * ppu) / 2,
-		y: window.innerHeight / 2 - (mapRef.current.length * ppu) / 2,
+		x: window.innerWidth / 2 - ((mapRef.current?.[0]?.length ?? 0) * ppu) / 2,
+		y: window.innerHeight / 2 - ((mapRef.current?.length ?? 0) * ppu) / 2,
 	});
 	const hoveredTileRef = useRef<{
 		x: number;
@@ -33,6 +38,8 @@ function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
 
 	const render = useCallback(() => {
 		const map = mapRef.current;
+		if (!map) return;
+
 		const hoveredTile = hoveredTileRef.current;
 
 		const canvas = canvasRef.current;
@@ -118,6 +125,7 @@ function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
 		};
 
 		const handleClick = () => {
+			if (!mapRef.current) return;
 			const hoveredTile = hoveredTileRef.current;
 			if (hoveredTile)
 				switch (selectedTool) {
@@ -132,6 +140,7 @@ function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
 						const fillColor = selectedColor;
 
 						const floodFill = (x: number, y: number) => {
+							if (!mapRef.current) return;
 							if (
 								x < 0 ||
 								x >= mapRef.current[0].length ||
@@ -172,6 +181,7 @@ function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
 			setPpu((prev) => Math.round(Math.max(1, prev * zoomFactor)));
 		};
 		const handleMouseMove = (e: MouseEvent) => {
+			if (!mapRef.current) return;
 			const canvas = canvasRef.current;
 			if (!canvas) return;
 
@@ -224,4 +234,4 @@ function TileMap({ mapRef, palette, selectedTool, selectedColor }: MapProps) {
 	);
 }
 
-export default TileMap;
+export default TileMapCanvas;

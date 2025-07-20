@@ -12,15 +12,25 @@ import {
 	Plus,
 	Upload,
 } from "lucide-react";
-import { type Dispatch, type SetStateAction, useRef, useState } from "react";
-import { getContrastColor } from "../App";
+import {
+	type Dispatch,
+	type RefObject,
+	type SetStateAction,
+	useRef,
+	useState,
+} from "react";
+import { getContrastColor, type TileMap } from "../App";
 import EditColorDialog, {
 	type EditColorDialogRef,
 } from "./EditColorDialog/EditColorDialog";
+import NewTileMapDialog, {
+	type NewTileMapDialogRef,
+} from "./NewTileMapDialog/NewTileMapDialog";
 
 export type Tool = "pan" | "paint" | "erase" | "fill";
 
 interface ControlsProps {
+	mapRef: RefObject<TileMap>;
 	selectedTool: Tool;
 	setSelectedTool: Dispatch<SetStateAction<Tool>>;
 	palette: Record<number, string>;
@@ -29,6 +39,7 @@ interface ControlsProps {
 	setSelectedColor: Dispatch<SetStateAction<number>>;
 }
 function Controls({
+	mapRef,
 	selectedTool,
 	setSelectedTool,
 	palette,
@@ -53,12 +64,16 @@ function Controls({
 	const [hoveredColor, setHoveredColor] = useState<number | null>(null);
 
 	const editColorDialogRef = useRef<EditColorDialogRef>(null);
+	const newTileMapDialogRef = useRef<NewTileMapDialogRef>(null);
 
 	return (
 		<>
 			<div className="Controls">
 				<div>
-					<Button icon={<FilePlus />} />
+					<Button
+						icon={<FilePlus />}
+						onClick={() => newTileMapDialogRef.current?.open()}
+					/>
 					<Button icon={<Upload />} />
 					<Button icon={<Download />} />
 				</div>
@@ -105,6 +120,7 @@ function Controls({
 				setPalette={setPalette}
 				setSelectedColor={setSelectedColor}
 			/>
+			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} />
 		</>
 	);
 }

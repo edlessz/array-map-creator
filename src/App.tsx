@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import "./App.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import Controls, { type Tool } from "./Controls/Controls";
-import TileMap from "./TileMap/TileMap";
+import TileMapCanvas from "./TileMapCanvas/TileMapCanvas";
 
 function App() {
-	const mapRef = useRef([]);
+	const mapRef = useRef<TileMap>(null);
 
 	const [palette, setPalette] = useState<Record<number, string>>({
 		0: "#FFFFFF", // White
@@ -25,7 +25,7 @@ function App() {
 					overflow: "hidden",
 				}}
 			>
-				<TileMap
+				<TileMapCanvas
 					mapRef={mapRef}
 					palette={palette}
 					selectedTool={selectedTool}
@@ -33,6 +33,7 @@ function App() {
 				/>
 			</div>
 			<Controls
+				mapRef={mapRef}
 				selectedTool={selectedTool}
 				setSelectedTool={setSelectedTool}
 				palette={palette}
@@ -46,6 +47,8 @@ function App() {
 }
 
 export default App;
+
+export type TileMap = (number | null)[][] | null;
 
 export const getContrastColor = (hexColor: string): string => {
 	const hex = hexColor.replace("#", "");
