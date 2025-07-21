@@ -1,18 +1,19 @@
+import { Button } from "primereact/button";
+import { Checkbox } from "primereact/checkbox";
 import { Dialog } from "primereact/dialog";
+import { Dropdown } from "primereact/dropdown";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
 import {
 	forwardRef,
+	type RefObject,
 	useImperativeHandle,
 	useState,
-	type RefObject,
 } from "react";
-import type { TileMap } from "../../../types";
-import { Button } from "primereact/button";
-import { InputTextarea } from "primereact/inputtextarea";
-import { Dropdown } from "primereact/dropdown";
-import { encodeAddress } from "../../../utils";
-import { Checkbox } from "primereact/checkbox";
 import { useTileMap } from "../../../contexts/TileMapContext";
 import { useToast } from "../../../contexts/ToastContext";
+import type { TileMap } from "../../../types";
+import { decodeAddress, encodeAddress } from "../../../utils";
 
 interface ExportDialogProps {
 	mapRef: RefObject<TileMap>;
@@ -38,6 +39,13 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 		];
 		const [selectedType, setSelectedType] = useState(exportTypes[0].value);
 		const [commentPalette, setCommentPalette] = useState(false);
+		const [template, setTemplate] = useState("x,y");
+
+		const toTemplate = (encodedAddress: string): string => {
+			if (!template) return encodedAddress;
+			const { x, y } = decodeAddress(encodedAddress);
+			return template.replace("x", x.toString()).replace("y", y.toString());
+		};
 
 		const getExportValue = (): string => {
 			if (!mapRef.current) return "";
@@ -52,13 +60,22 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 			}
 
 			const data: Record<string, string> = {
-				"position-key": JSON.stringify(mapRef.current?.data ?? {}, null, "\t"),
+				"position-key": JSON.stringify(
+					Object.fromEntries(
+						Object.entries(mapRef.current?.data ?? {}).map(([k, v]) => [
+							toTemplate(k),
+							v,
+						]),
+					),
+					null,
+					"\t",
+				),
 				"tile-key": JSON.stringify(
 					Object.values(mapRef.current?.data ?? {}).reduce(
 						(acc, value) => {
 							acc[value] = Object.entries(mapRef.current?.data ?? {})
 								.filter(([, v]) => v === value)
-								.map(([k]) => k);
+								.map(([k]) => toTemplate(k));
 							return acc;
 						},
 						{} as Record<number, string[]>,
@@ -113,6 +130,17 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 						options={exportTypes}
 						onChange={(e) => setSelectedType(e.value)}
 					/>
+					{selectedType !== "2d-array" && (
+						<>
+							<span>Template:</span>
+							<InputText
+								value={template}
+								spellCheck="false"
+								onChange={(e) => setTemplate(e.target.value ?? "x,y")}
+								placeholder="x,y"
+							/>
+						</>
+					)}
 					<span>Comment Palette:</span>
 					<Checkbox
 						checked={commentPalette}
@@ -122,7 +150,12 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 				<InputTextarea
 					value={getExportValue()}
 					readOnly
-					style={{ width: "100%", cursor: "pointer", marginTop: "1rem" }}
+					style={{
+						width: "100%",
+						height: "150px",
+						cursor: "pointer",
+						marginTop: "1rem",
+					}}
 					onClick={copy}
 				/>
 			</Dialog>

@@ -19,11 +19,11 @@ import { getContrastColor } from "../../utils";
 import EditColorDialog, {
 	type EditColorDialogRef,
 } from "./EditColorDialog/EditColorDialog";
+import type { ExportDialogRef } from "./ExportDialog/ExportDialog";
+import ExportDialog from "./ExportDialog/ExportDialog";
 import NewTileMapDialog, {
 	type NewTileMapDialogRef,
 } from "./NewTileMapDialog/NewTileMapDialog";
-import type { ExportDialogRef } from "./ExportDialog/ExportDialog";
-import ExportDialog from "./ExportDialog/ExportDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;

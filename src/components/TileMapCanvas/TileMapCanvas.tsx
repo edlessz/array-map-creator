@@ -16,13 +16,14 @@ function TileMapCanvas({ mapRef, onRecenterAndFit }: TileMapCanvasProps) {
 	const canvasContainerRef = useRef<HTMLDivElement>(null);
 	const animationFrameRef = useRef<number | null>(null);
 
-	const { ppu, position, hoveredTileRef, recenterAndFit } = useCanvasInteraction({
-		mapRef,
-		selectedTool,
-		selectedColor,
-		canvasRef,
-		canvasContainerRef,
-	});
+	const { ppu, position, hoveredTileRef, recenterAndFit } =
+		useCanvasInteraction({
+			mapRef,
+			selectedTool,
+			selectedColor,
+			canvasRef,
+			canvasContainerRef,
+		});
 
 	useEffect(() => {
 		onRecenterAndFit?.(recenterAndFit);
