@@ -4,6 +4,7 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import TileMapCanvas from "./components/TileMapCanvas/TileMapCanvas";
 import Toolbar from "./components/Toolbar/Toolbar";
 import { TileMapProvider } from "./contexts/TileMapContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import type { TileMap } from "./types";
 
 function App() {
@@ -11,23 +12,27 @@ function App() {
 	const recenterFnRef = useRef<(() => void) | null>(null);
 
 	return (
-		<TileMapProvider>
-			<div
-				style={{
-					position: "absolute",
-					width: "100vw",
-					height: "100vh",
-					overflow: "hidden",
-				}}
-			>
-				<TileMapCanvas 
-					mapRef={mapRef} 
-					onRecenterAndFit={(fn) => (recenterFnRef.current = fn)}
-				/>
-			</div>
-			<Toolbar mapRef={mapRef} recenterFn={() => recenterFnRef.current?.()} />
-			<ConfirmDialog />
-		</TileMapProvider>
+		<ToastProvider>
+			<TileMapProvider>
+				<div
+					style={{
+						position: "absolute",
+						width: "100vw",
+						height: "100vh",
+						overflow: "hidden",
+					}}
+				>
+					<TileMapCanvas
+						mapRef={mapRef}
+						onRecenterAndFit={(fn) => {
+							recenterFnRef.current = fn;
+						}}
+					/>
+				</div>
+				<Toolbar mapRef={mapRef} recenterFn={() => recenterFnRef.current?.()} />
+				<ConfirmDialog />
+			</TileMapProvider>
+		</ToastProvider>
 	);
 }
 

@@ -21,3 +21,14 @@
 .Toolbar button {
 	aspect-ratio: 1;
 }
+
+.author {
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	padding: 1rem;
+}
+
+a {
+	color: var(--primary-color);
+}

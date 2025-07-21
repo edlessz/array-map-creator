@@ -12,6 +12,7 @@ import { Dropdown } from "primereact/dropdown";
 import { encodeAddress } from "../../../utils";
 import { Checkbox } from "primereact/checkbox";
 import { useTileMap } from "../../../contexts/TileMapContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 interface ExportDialogProps {
 	mapRef: RefObject<TileMap>;
@@ -22,6 +23,7 @@ export interface ExportDialogRef {
 
 const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 	({ mapRef }, ref) => {
+		const { success, error } = useToast();
 		const { palette } = useTileMap();
 		const [dialogVisible, setDialogVisible] = useState(false);
 
@@ -83,12 +85,8 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 		const copy = () => {
 			const exportValue = getExportValue();
 			navigator.clipboard.writeText(exportValue).then(
-				() => {
-					console.log("Export value copied to clipboard");
-				},
-				(err) => {
-					console.error("Failed to copy export value: ", err);
-				},
+				() => success({ detail: "Export copied to clipboard!" }),
+				() => error({ detail: `Failed to copy to clipboard.` }),
 			);
 		};
 

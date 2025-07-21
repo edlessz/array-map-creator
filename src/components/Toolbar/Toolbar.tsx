@@ -105,12 +105,29 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 						onClick={() => editColorDialogRef.current?.add()}
 					/>
 				</div>
+				<div className="author">
+					<a href="/" target="_blank" rel="noopener noreferrer">
+						{location.hostname.split(".")[0]}
+					</a>
+					•
+					<a
+						href="https://github.com/edlessz/TileMapster"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						GitHub
+					</a>
+				</div>
 			</div>
 			<EditColorDialog ref={editColorDialogRef} />
-			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} onMapCreated={() => {
-				setHasMap(true);
-				recenterFn();
-			}} />
+			<NewTileMapDialog
+				ref={newTileMapDialogRef}
+				mapRef={mapRef}
+				onMapCreated={() => {
+					setHasMap(true);
+					recenterFn();
+				}}
+			/>
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);
