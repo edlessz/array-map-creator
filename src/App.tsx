@@ -8,6 +8,7 @@ import type { TileMap } from "./types";
 
 function App() {
 	const mapRef = useRef<TileMap>(null);
+	const recenterFnRef = useRef<(() => void) | null>(null);
 
 	return (
 		<TileMapProvider>
@@ -19,9 +20,12 @@ function App() {
 					overflow: "hidden",
 				}}
 			>
-				<TileMapCanvas mapRef={mapRef} />
+				<TileMapCanvas 
+					mapRef={mapRef} 
+					onRecenterAndFit={(fn) => (recenterFnRef.current = fn)}
+				/>
 			</div>
-			<Toolbar mapRef={mapRef} />
+			<Toolbar mapRef={mapRef} recenterFn={() => recenterFnRef.current?.()} />
 			<ConfirmDialog />
 		</TileMapProvider>
 	);

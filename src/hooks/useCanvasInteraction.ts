@@ -151,9 +151,37 @@ export const useCanvasInteraction = ({
 		};
 	}, [selectedTool, ppu, mapRef, canvasRef, canvasContainerRef, selectedColor]);
 
+	const recenterAndFit = () => {
+		if (!mapRef.current) return;
+		
+		const map = mapRef.current;
+		const screenWidth = window.innerWidth;
+		const screenHeight = window.innerHeight;
+		
+		// Calculate ppu to fit the map comfortably (80% of screen)
+		const maxWidth = screenWidth * 0.8;
+		const maxHeight = screenHeight * 0.8;
+		const calculatedPpu = Math.min(
+			Math.floor(maxWidth / map.width),
+			Math.floor(maxHeight / map.height)
+		);
+		
+		const newPpu = Math.max(MIN_PPU, calculatedPpu);
+		setPpu(newPpu);
+		
+		// Center the map
+		const mapPixelWidth = map.width * newPpu;
+		const mapPixelHeight = map.height * newPpu;
+		setPosition({
+			x: (screenWidth - mapPixelWidth) / 2,
+			y: (screenHeight - mapPixelHeight) / 2,
+		});
+	};
+
 	return {
 		ppu,
 		position,
 		hoveredTileRef,
+		recenterAndFit,
 	};
 };

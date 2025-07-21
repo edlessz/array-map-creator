@@ -27,8 +27,9 @@ import ExportDialog from "./ExportDialog/ExportDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
+	recenterFn: () => void;
 }
-function Toolbar({ mapRef }: ToolbarProps) {
+function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 	const {
 		palette,
 		selectedTool,
@@ -106,7 +107,10 @@ function Toolbar({ mapRef }: ToolbarProps) {
 				</div>
 			</div>
 			<EditColorDialog ref={editColorDialogRef} />
-			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} onMapCreated={() => setHasMap(true)} />
+			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} onMapCreated={() => {
+				setHasMap(true);
+				recenterFn();
+			}} />
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);

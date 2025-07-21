@@ -7,21 +7,26 @@ import { encodeAddress, getContrastColor } from "../../utils";
 
 interface TileMapCanvasProps {
 	mapRef: RefObject<TileMap>;
+	onRecenterAndFit?: (fn: () => void) => void;
 }
 
-function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
+function TileMapCanvas({ mapRef, onRecenterAndFit }: TileMapCanvasProps) {
 	const { palette, selectedTool, selectedColor } = useTileMap();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasContainerRef = useRef<HTMLDivElement>(null);
 	const animationFrameRef = useRef<number | null>(null);
 
-	const { ppu, position, hoveredTileRef } = useCanvasInteraction({
+	const { ppu, position, hoveredTileRef, recenterAndFit } = useCanvasInteraction({
 		mapRef,
 		selectedTool,
 		selectedColor,
 		canvasRef,
 		canvasContainerRef,
 	});
+
+	useEffect(() => {
+		onRecenterAndFit?.(recenterAndFit);
+	}, [onRecenterAndFit, recenterAndFit]);
 
 	const render = useCallback(() => {
 		const map = mapRef.current;
