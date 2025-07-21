@@ -12,13 +12,14 @@ import type { TileMap } from "../../../types";
 
 interface NewTileMapDialogProps {
 	mapRef: RefObject<TileMap>;
+	onMapCreated?: () => void;
 }
 export interface NewTileMapDialogRef {
 	open: () => void;
 }
 
 const NewTileMapDialog = forwardRef<NewTileMapDialogRef, NewTileMapDialogProps>(
-	({ mapRef }, ref) => {
+	({ mapRef, onMapCreated }, ref) => {
 		const [dialogVisible, setDialogVisible] = useState(false);
 		const [width, setWidth] = useState(mapRef.current?.width ?? 1);
 		const [height, setHeight] = useState(mapRef.current?.height ?? 1);
@@ -35,6 +36,7 @@ const NewTileMapDialog = forwardRef<NewTileMapDialogRef, NewTileMapDialogProps>(
 					height,
 				};
 				setDialogVisible(false);
+				onMapCreated?.();
 			};
 			if (mapRef.current) {
 				confirmDialog({

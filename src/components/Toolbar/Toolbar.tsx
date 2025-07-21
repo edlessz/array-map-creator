@@ -22,6 +22,8 @@ import EditColorDialog, {
 import NewTileMapDialog, {
 	type NewTileMapDialogRef,
 } from "./NewTileMapDialog/NewTileMapDialog";
+import type { ExportDialogRef } from "./ExportDialog/ExportDialog";
+import ExportDialog from "./ExportDialog/ExportDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
@@ -34,6 +36,7 @@ function Toolbar({ mapRef }: ToolbarProps) {
 		selectedColor,
 		setSelectedColor,
 	} = useTileMap();
+	const [hasMap, setHasMap] = useState(!!mapRef.current);
 	const toolButtons: {
 		icon: React.ReactNode;
 		tool: Tool;
@@ -52,6 +55,7 @@ function Toolbar({ mapRef }: ToolbarProps) {
 
 	const editColorDialogRef = useRef<EditColorDialogRef>(null);
 	const newTileMapDialogRef = useRef<NewTileMapDialogRef>(null);
+	const exportDialogRef = useRef<ExportDialogRef>(null);
 
 	const getPaletteIcon = (colorId: number): JSX.Element => {
 		if (selectedColor === colorId)
@@ -68,7 +72,11 @@ function Toolbar({ mapRef }: ToolbarProps) {
 						onClick={() => newTileMapDialogRef.current?.open()}
 					/>
 					<Button icon={<Upload />} />
-					<Button icon={<Download />} />
+					<Button
+						icon={<Download />}
+						disabled={!hasMap}
+						onClick={() => exportDialogRef.current?.open()}
+					/>
 				</div>
 				<div>
 					{toolButtons.map(({ icon, tool }) => (
@@ -98,7 +106,8 @@ function Toolbar({ mapRef }: ToolbarProps) {
 				</div>
 			</div>
 			<EditColorDialog ref={editColorDialogRef} />
-			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} />
+			<NewTileMapDialog ref={newTileMapDialogRef} mapRef={mapRef} onMapCreated={() => setHasMap(true)} />
+			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);
 }
