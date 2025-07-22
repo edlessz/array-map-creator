@@ -24,6 +24,9 @@ import ExportDialog from "./ExportDialog/ExportDialog";
 import NewTileMapDialog, {
 	type NewTileMapDialogRef,
 } from "./NewTileMapDialog/NewTileMapDialog";
+import ImportDialog, {
+	type ImportDialogRef,
+} from "./ImportDialog/ImportDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
@@ -56,6 +59,7 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 
 	const editColorDialogRef = useRef<EditColorDialogRef>(null);
 	const newTileMapDialogRef = useRef<NewTileMapDialogRef>(null);
+	const importDialogRef = useRef<ImportDialogRef>(null);
 	const exportDialogRef = useRef<ExportDialogRef>(null);
 
 	const getPaletteIcon = (colorId: number): JSX.Element => {
@@ -72,7 +76,10 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 						icon={<FilePlus />}
 						onClick={() => newTileMapDialogRef.current?.open()}
 					/>
-					<Button icon={<Upload />} />
+					<Button
+						icon={<Upload />}
+						onClick={() => importDialogRef.current?.open()}
+					/>
 					<Button
 						icon={<Download />}
 						disabled={!hasMap}
@@ -128,6 +135,7 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 					recenterFn();
 				}}
 			/>
+			<ImportDialog ref={importDialogRef} mapRef={mapRef} />
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);
