@@ -18,15 +18,13 @@ import type { TileMap, Tool } from "../../types";
 import { getContrastColor } from "../../utils";
 import EditColorDialog, {
 	type EditColorDialogRef,
-} from "./EditColorDialog/EditColorDialog";
-import type { ExportDialogRef } from "./ExportDialog/ExportDialog";
-import ExportDialog from "./ExportDialog/ExportDialog";
-import ImportDialog, {
-	type ImportDialogRef,
-} from "./ImportDialog/ImportDialog";
+} from "./Dialogs/EditColorDialog";
+import type { ExportDialogRef } from "./Dialogs/ExportDialog";
+import ExportDialog from "./Dialogs/ExportDialog";
+import ImportDialog, { type ImportDialogRef } from "./Dialogs/ImportDialog";
 import NewTileMapDialog, {
 	type NewTileMapDialogRef,
-} from "./NewTileMapDialog/NewTileMapDialog";
+} from "./Dialogs/NewTileMapDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
@@ -135,7 +133,11 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 					recenterFn();
 				}}
 			/>
-			<ImportDialog ref={importDialogRef} mapRef={mapRef} onImportSuccess={recenterFn} />
+			<ImportDialog
+				ref={importDialogRef}
+				mapRef={mapRef}
+				onImportSuccess={recenterFn}
+			/>
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);
