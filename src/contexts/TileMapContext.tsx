@@ -1,14 +1,21 @@
-import { createContext, type ReactNode, useContext, useState } from "react";
+import {
+	createContext,
+	type Dispatch,
+	type ReactNode,
+	type SetStateAction,
+	useContext,
+	useState,
+} from "react";
 import { DEFAULT_PALETTE } from "../constants";
 import type { Tool } from "../types";
 
 interface TileMapContextType {
 	palette: Record<number, string>;
-	setPalette: (palette: Record<number, string>) => void;
+	setPalette: Dispatch<SetStateAction<Record<number, string>>>;
 	selectedTool: Tool;
-	setSelectedTool: (tool: Tool) => void;
+	setSelectedTool: Dispatch<SetStateAction<Tool>>;
 	selectedColor: number;
-	setSelectedColor: (color: number) => void;
+	setSelectedColor: Dispatch<SetStateAction<number>>;
 	addColor: (color: string) => void;
 	updateColor: (colorId: number, color: string) => void;
 	deleteColor: (colorId: number) => void;

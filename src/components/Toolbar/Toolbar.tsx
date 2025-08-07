@@ -21,12 +21,12 @@ import EditColorDialog, {
 } from "./EditColorDialog/EditColorDialog";
 import type { ExportDialogRef } from "./ExportDialog/ExportDialog";
 import ExportDialog from "./ExportDialog/ExportDialog";
-import NewTileMapDialog, {
-	type NewTileMapDialogRef,
-} from "./NewTileMapDialog/NewTileMapDialog";
 import ImportDialog, {
 	type ImportDialogRef,
 } from "./ImportDialog/ImportDialog";
+import NewTileMapDialog, {
+	type NewTileMapDialogRef,
+} from "./NewTileMapDialog/NewTileMapDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
@@ -135,7 +135,7 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 					recenterFn();
 				}}
 			/>
-			<ImportDialog ref={importDialogRef} mapRef={mapRef} />
+			<ImportDialog ref={importDialogRef} mapRef={mapRef} onImportSuccess={recenterFn} />
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);
