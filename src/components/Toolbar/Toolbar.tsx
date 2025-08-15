@@ -114,7 +114,11 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 					<span style={{ marginRight: "auto", fontWeight: "bold" }}>
 						Tile Mapster
 					</span>
-					<a href="/" target="_blank" rel="noopener noreferrer">
+					<a
+						href="https://edlessz.com"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						{location.hostname.split(".")[0]}
 					</a>
 					•
