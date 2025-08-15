@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
-		"check": "npx @biomejs/biome check --write",
+		"check": "npx biome check --write",
 		"preview": "vite preview",
 		"predeploy": "npm run build && npm run check",
 		"deploy": "gh-pages -d dist"
