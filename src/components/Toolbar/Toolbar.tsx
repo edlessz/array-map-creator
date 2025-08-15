@@ -136,7 +136,10 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 			<ImportDialog
 				ref={importDialogRef}
 				mapRef={mapRef}
-				onImportSuccess={recenterFn}
+				onImportSuccess={() => {
+					setHasMap(true);
+					recenterFn();
+				}}
 			/>
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
