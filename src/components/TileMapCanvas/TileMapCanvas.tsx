@@ -94,9 +94,12 @@ function TileMapCanvas({ mapRef, onRecenterAndFit }: TileMapCanvasProps) {
 			render();
 			animationFrameRef.current = requestAnimationFrame(animate);
 		};
-		animationFrameRef.current = requestAnimationFrame(animate);
+
+		const frameId = requestAnimationFrame(animate);
+		animationFrameRef.current = frameId;
 
 		return () => {
+			cancelAnimationFrame(frameId);
 			if (animationFrameRef.current)
 				cancelAnimationFrame(animationFrameRef.current);
 		};
