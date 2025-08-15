@@ -111,6 +111,9 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 					/>
 				</div>
 				<div className="author">
+					<span style={{ marginRight: "auto", fontWeight: "bold" }}>
+						TileMapster
+					</span>
 					<a href="/" target="_blank" rel="noopener noreferrer">
 						{location.hostname.split(".")[0]}
 					</a>

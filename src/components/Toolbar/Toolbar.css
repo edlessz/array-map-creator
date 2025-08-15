@@ -26,7 +26,8 @@
 .author {
 	position: absolute;
 	bottom: 100%;
-	right: 0;
+	width: 100%;
+	left: 0;
 	padding: 1rem;
 }
 
