@@ -112,14 +112,14 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 				</div>
 				<div className="author">
 					<span style={{ marginRight: "auto", fontWeight: "bold" }}>
-						TileMapster
+						Tile Mapster
 					</span>
 					<a href="/" target="_blank" rel="noopener noreferrer">
 						{location.hostname.split(".")[0]}
 					</a>
 					•
 					<a
-						href="https://github.com/edlessz/TileMapster"
+						href="https://github.com/edlessz/tile-mapster"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
