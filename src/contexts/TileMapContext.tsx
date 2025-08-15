@@ -34,7 +34,8 @@ export function TileMapProvider({ children }: TileMapProviderProps) {
 	const [selectedColor, setSelectedColor] = useState<number>(1);
 
 	const addColor = (color: string) => {
-		const newId = Object.keys(palette).length;
+		const existingIds = Object.keys(palette).map(Number);
+		const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 0;
 		setPalette({ ...palette, [newId]: color });
 		setSelectedColor(newId);
 	};
