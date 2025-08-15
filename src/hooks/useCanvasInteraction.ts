@@ -41,31 +41,47 @@ export const useCanvasInteraction = ({
 					case "fill": {
 						const targetColor = mapRef.current.data[address];
 						const fillColor = selectedColor;
-						let filledTiles = 0;
 
-						const floodFill = (x: number, y: number) => {
-							if (!mapRef.current) return;
+						if (targetColor === fillColor) break;
+
+						const stack: { x: number; y: number }[] = [
+							{ x: hoveredTile.x, y: hoveredTile.y },
+						];
+						let filledTiles = 0;
+						const maxTiles = 10000;
+
+						while (stack.length > 0 && filledTiles < maxTiles) {
+							const val = stack.pop();
+							if (!val) break;
+							const { x, y } = val;
+
 							if (
 								x < 0 ||
 								x >= mapRef.current.width ||
 								y < 0 ||
 								y >= mapRef.current.height
-							)
-								return;
-							if (
-								mapRef.current.data[encodeAddress(x, y)] === fillColor ||
-								mapRef.current.data[encodeAddress(x, y)] !== targetColor
-							)
-								return;
-							mapRef.current.data[encodeAddress(x, y)] = fillColor;
+							) {
+								continue;
+							}
+
+							const currentAddress = encodeAddress(x, y);
+							const currentColor = mapRef.current.data[currentAddress];
+
+							if (currentColor === fillColor || currentColor !== targetColor)
+								continue;
+
+							mapRef.current.data[currentAddress] = fillColor;
 							filledTiles++;
-							if (filledTiles > 1000) return;
-							floodFill(x - 1, y);
-							floodFill(x + 1, y);
-							floodFill(x, y - 1);
-							floodFill(x, y + 1);
-						};
-						floodFill(hoveredTile.x, hoveredTile.y);
+
+							stack.push(
+								{ x: x - 1, y },
+								{ x: x + 1, y },
+								{ x, y: y - 1 },
+								{ x, y: y + 1 },
+							);
+						}
+
+						break;
 					}
 				}
 			}
