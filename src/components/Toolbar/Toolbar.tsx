@@ -99,10 +99,10 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 						<Button
 							key={colorId}
 							style={{ backgroundColor: color, color: getContrastColor(color) }}
-							onClick={() => selectColor(parseInt(colorId))}
-							onMouseEnter={() => setHoveredColor(parseInt(colorId))}
+							onClick={() => selectColor(parseInt(colorId, 10))}
+							onMouseEnter={() => setHoveredColor(parseInt(colorId, 10))}
 							onMouseLeave={() => setHoveredColor(null)}
-							icon={getPaletteIcon(parseInt(colorId))}
+							icon={getPaletteIcon(parseInt(colorId, 10))}
 						/>
 					))}
 					<Button

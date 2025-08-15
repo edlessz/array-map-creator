@@ -65,7 +65,7 @@ const ImportDialog = forwardRef<ImportDialogRef, ImportDialogProps>(
 						for (const [tileId, addresses] of Object.entries(value)) {
 							for (const addr of addresses) {
 								const { x, y } = decodeAddress(addr);
-								newMap[encodeAddress(x, y)] = parseInt(tileId);
+								newMap[encodeAddress(x, y)] = parseInt(tileId, 10);
 							}
 						}
 						const pos = Object.keys(newMap).map(decodeAddress);
@@ -79,7 +79,7 @@ const ImportDialog = forwardRef<ImportDialogRef, ImportDialogProps>(
 						const newMap: Record<string, number> = {};
 						value.forEach((row, y) => {
 							row.forEach((tileId, x) => {
-								const parsedNum = parseInt(String(tileId));
+								const parsedNum = parseInt(String(tileId), 10);
 								if (Number.isInteger(parsedNum)) {
 									newMap[encodeAddress(x, y)] = parsedNum;
 								}
