@@ -41,6 +41,7 @@ export const useCanvasInteraction = ({
 					case "fill": {
 						const targetColor = mapRef.current.data[address];
 						const fillColor = selectedColor;
+						let filledTiles = 0;
 
 						const floodFill = (x: number, y: number) => {
 							if (!mapRef.current) return;
@@ -57,6 +58,8 @@ export const useCanvasInteraction = ({
 							)
 								return;
 							mapRef.current.data[encodeAddress(x, y)] = fillColor;
+							filledTiles++;
+							if (filledTiles > 1000) return;
 							floodFill(x - 1, y);
 							floodFill(x + 1, y);
 							floodFill(x, y - 1);
