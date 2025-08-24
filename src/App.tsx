@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import "./App.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
-import TileMapCanvas from "./components/TileMapCanvas/TileMapCanvas";
+import CanvasEditor from "./components/CanvasEditor/CanvasEditor";
 import Toolbar from "./components/Toolbar/Toolbar";
 import { TileMapProvider } from "./contexts/TileMapContext";
 import { ToastProvider } from "./contexts/ToastContext";
@@ -13,7 +13,7 @@ function App() {
 	return (
 		<ToastProvider>
 			<TileMapProvider>
-				<TileMapCanvas mapRef={mapRef} />
+				<CanvasEditor mapRef={mapRef} />
 				<Toolbar mapRef={mapRef} />
 				<ConfirmDialog />
 			</TileMapProvider>

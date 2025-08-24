@@ -1,16 +1,16 @@
 import { type RefObject, useCallback, useEffect, useRef } from "react";
-import "./TileMapCanvas.css";
+import "./CanvasEditor.css";
 import { ANIMATION_CONSTANTS, RENDERING_CONSTANTS } from "../../constants";
 import { useTileMap } from "../../contexts/TileMapContext";
 import { useCanvasInteraction } from "../../hooks/useCanvasInteraction";
 import type { TileMap } from "../../types";
 import { encodeAddress, getContrastColor } from "../../utils";
 
-interface TileMapCanvasProps {
+interface CanvasEditorProps {
 	mapRef: RefObject<TileMap>;
 }
 
-function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
+function CanvasEditor({ mapRef }: CanvasEditorProps) {
 	const { palette, selectedTool, selectedColor } = useTileMap();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationFrameRef = useRef<number | null>(null);
@@ -139,7 +139,7 @@ function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
 		};
 	}, [render]);
 
-	return <canvas className="TileMap" ref={canvasRef} />;
+	return <canvas className="CanvasEditor" ref={canvasRef} />;
 }
 
-export default TileMapCanvas;
+export default CanvasEditor;
