@@ -12,7 +12,6 @@ import { useTileMap } from "../../../contexts/TileMapContext";
 import { useToast } from "../../../contexts/ToastContext";
 import type { TileMap } from "../../../types";
 import {
-	decodeAddress,
 	encodeAddress,
 	is2DArray,
 	isAddressMap,
@@ -21,14 +20,13 @@ import {
 
 interface ImportDialogProps {
 	mapRef: RefObject<TileMap>;
-	onImportSuccess?: () => void;
 }
 export interface ImportDialogRef {
 	open: () => void;
 }
 
 const ImportDialog = forwardRef<ImportDialogRef, ImportDialogProps>(
-	({ mapRef, onImportSuccess }, ref) => {
+	({ mapRef }, ref) => {
 		const { success, error } = useToast();
 		const { palette, setPalette } = useTileMap();
 		const [dialogVisible, setDialogVisible] = useState(false);
@@ -53,26 +51,16 @@ const ImportDialog = forwardRef<ImportDialogRef, ImportDialogProps>(
 
 					if (isAddressMap(value)) {
 						// format 1
-						const pos = Object.keys(value).map(decodeAddress);
-						const width = Math.max(...pos.map((p) => p.x)) + 1;
-						const height = Math.max(...pos.map((p) => p.y)) + 1;
-
-						mapRef.current = { data: value, width, height };
+						mapRef.current = value;
 						successStatus = true;
 					} else if (isTileIdMap(value)) {
 						// format 2
 						const newMap: Record<string, number> = {};
 						for (const [tileId, addresses] of Object.entries(value)) {
-							for (const addr of addresses) {
-								const { x, y } = decodeAddress(addr);
-								newMap[encodeAddress(x, y)] = parseInt(tileId, 10);
-							}
+							for (const addr of addresses) newMap[addr] = parseInt(tileId, 10);
 						}
-						const pos = Object.keys(newMap).map(decodeAddress);
-						const width = Math.max(...pos.map((p) => p.x)) + 1;
-						const height = Math.max(...pos.map((p) => p.y)) + 1;
 
-						mapRef.current = { data: newMap, width, height };
+						mapRef.current = newMap;
 						successStatus = true;
 					} else if (is2DArray(value)) {
 						// format 3
@@ -85,29 +73,28 @@ const ImportDialog = forwardRef<ImportDialogRef, ImportDialogProps>(
 								}
 							});
 						});
-						const width = value[0]?.length ?? 0;
-						const height = value.length;
 
-						mapRef.current = { data: newMap, width, height };
+						mapRef.current = newMap;
 						successStatus = true;
 					}
 
 					if (successStatus) {
 						// Generate missing colors.
 						const map = mapRef.current;
-						const colors = Object.values(map?.data ?? {});
+						const colors = new Set(Object.values(map ?? {}));
 
-						colors.forEach((tileId) => {
-							if (tileId !== null && !(tileId in palette))
+						for (const tileId of colors) {
+							if (Number.isInteger(tileId) && !(tileId in palette))
 								setPalette((p: typeof palette) => ({
 									...p,
-									[tileId]: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+									[tileId]: `#${Math.floor(Math.random() * 16777215)
+										.toString(16)
+										.padStart(6, "0")}`,
 								}));
-						});
+						}
 
 						success({ detail: "Import successful!" });
 						setDialogVisible(false);
-						onImportSuccess?.();
 					} else error({ detail: "Invalid tile map format!" });
 				},
 			});

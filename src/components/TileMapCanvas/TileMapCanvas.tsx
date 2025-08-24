@@ -1,5 +1,6 @@
 import { type RefObject, useCallback, useEffect, useRef } from "react";
 import "./TileMapCanvas.css";
+import { ANIMATION_CONSTANTS, RENDERING_CONSTANTS } from "../../constants";
 import { useTileMap } from "../../contexts/TileMapContext";
 import { useCanvasInteraction } from "../../hooks/useCanvasInteraction";
 import type { TileMap } from "../../types";
@@ -7,87 +8,123 @@ import { encodeAddress, getContrastColor } from "../../utils";
 
 interface TileMapCanvasProps {
 	mapRef: RefObject<TileMap>;
-	onRecenterAndFit?: (fn: () => void) => void;
 }
 
-function TileMapCanvas({ mapRef, onRecenterAndFit }: TileMapCanvasProps) {
+function TileMapCanvas({ mapRef }: TileMapCanvasProps) {
 	const { palette, selectedTool, selectedColor } = useTileMap();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const canvasContainerRef = useRef<HTMLDivElement>(null);
 	const animationFrameRef = useRef<number | null>(null);
 
-	const { ppu, position, hoveredTileRef, recenterAndFit } =
-		useCanvasInteraction({
-			mapRef,
-			selectedTool,
-			selectedColor,
-			canvasRef,
-			canvasContainerRef,
-		});
-
-	useEffect(() => {
-		onRecenterAndFit?.(recenterAndFit);
-	}, [onRecenterAndFit, recenterAndFit]);
+	const { cameraRef, hoveredTileRef } = useCanvasInteraction({
+		mapRef,
+		canvasRef,
+		selectedTool,
+		selectedColor,
+	});
 
 	const render = useCallback(() => {
-		const map = mapRef.current;
-		if (!map) return;
-
-		const hoveredTile = hoveredTileRef.current;
-
 		const canvas = canvasRef.current;
-		if (!canvas) return;
-		const ctx = canvas.getContext("2d");
-		if (!ctx) return;
+		const ctx = canvas?.getContext("2d");
+		if (!canvas || !ctx) return;
 
-		const width = (map.width ?? 0) * ppu;
-		const height = (map.height ?? 0) * ppu;
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		canvas.style.width = `100vw`;
+		canvas.style.height = `100vh`;
 
-		canvas.width = width;
-		canvas.height = height;
-		canvas.style.width = `${width}px`;
-		canvas.style.height = `${height}px`;
-		canvas.style.left = `${position.x}px`;
-		canvas.style.top = `${position.y}px`;
+		ctx.resetTransform();
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-		ctx.clearRect(0, 0, width, height);
-		for (let y = 0; y < map.height; y++) {
-			for (let x = 0; x < map.width; x++) {
+		const camera = cameraRef.current;
+		if (!camera) return;
+
+		ctx.scale(camera.ppu, camera.ppu);
+		ctx.translate(
+			-camera.x + canvas.width / 2 / camera.ppu,
+			-camera.y + canvas.height / 2 / camera.ppu,
+		);
+
+		const topLeft = {
+			x: camera.x - canvas.width / 2 / camera.ppu,
+			y: camera.y - canvas.height / 2 / camera.ppu,
+		};
+		const bottomRight = {
+			x: camera.x + canvas.width / 2 / camera.ppu,
+			y: camera.y + canvas.height / 2 / camera.ppu,
+		};
+
+		for (let y = Math.floor(topLeft.y); y < Math.ceil(bottomRight.y); y++) {
+			for (let x = Math.floor(topLeft.x); x < Math.ceil(bottomRight.x); x++) {
 				const address = encodeAddress(x, y);
-				if (address in map.data) {
-					const value = map.data[address];
+				if (address in mapRef.current) {
+					const value = mapRef.current[address];
 					if (value < Object.keys(palette).length) {
 						ctx.fillStyle = palette[value];
-						ctx.fillRect(x * ppu, y * ppu, ppu, ppu);
-					} else delete map.data[address];
+						ctx.fillRect(x, y, 1, 1);
+					} else delete mapRef.current[address];
 				}
-				if (!(address in map.data)) {
-					ctx.fillStyle = "#ddd";
-					ctx.fillRect(x * ppu, y * ppu, ppu, ppu);
-					ctx.fillStyle = "#fff";
-					ctx.fillRect(x * ppu, y * ppu, ppu * 0.5, ppu * 0.5);
-					ctx.fillRect((x + 0.5) * ppu, (y + 0.5) * ppu, ppu * 0.5, ppu * 0.5);
+				if (!(address in mapRef.current)) {
+					ctx.fillStyle = RENDERING_CONSTANTS.EMPTY_TILE_BACKGROUND;
+					ctx.fillRect(x, y, 1, 1);
+					ctx.fillStyle = RENDERING_CONSTANTS.EMPTY_TILE_PATTERN;
+					ctx.fillRect(
+						x,
+						y,
+						RENDERING_CONSTANTS.CHECKERBOARD_SIZE,
+						RENDERING_CONSTANTS.CHECKERBOARD_SIZE,
+					);
+					ctx.fillRect(
+						x + RENDERING_CONSTANTS.CHECKERBOARD_SIZE,
+						y + RENDERING_CONSTANTS.CHECKERBOARD_SIZE,
+						RENDERING_CONSTANTS.CHECKERBOARD_SIZE,
+						RENDERING_CONSTANTS.CHECKERBOARD_SIZE,
+					);
 				}
 			}
 		}
 
+		// Draw grid lines at x=0 and y=0
+		ctx.strokeStyle = "#000";
+		ctx.lineWidth = RENDERING_CONSTANTS.GRID_LINE_WIDTH / camera.ppu;
+
+		// Vertical line at x=0
+		if (topLeft.x <= 0 && bottomRight.x >= 0) {
+			ctx.beginPath();
+			ctx.moveTo(0, topLeft.y);
+			ctx.lineTo(0, bottomRight.y);
+			ctx.stroke();
+		}
+
+		// Horizontal line at y=0
+		if (topLeft.y <= 0 && bottomRight.y >= 0) {
+			ctx.beginPath();
+			ctx.moveTo(topLeft.x, 0);
+			ctx.lineTo(bottomRight.x, 0);
+			ctx.stroke();
+		}
+
+		const hoveredTile = hoveredTileRef.current;
 		if (hoveredTile && selectedTool !== "pan") {
 			const address = encodeAddress(hoveredTile.x, hoveredTile.y);
-			if (!(address in map.data)) {
+			if (!(address in mapRef.current)) {
 				ctx.fillStyle = "#000";
 			} else {
-				const value = map.data[address];
+				const value = mapRef.current[address];
 				const tileColor = value !== null ? (palette[value] ?? "#000") : "#000";
 				ctx.fillStyle = getContrastColor(tileColor);
 			}
 
 			const pulseAlpha =
-				0.1 + (Math.sin(performance.now() / 100) * 0.5 + 0.5) * 0.1;
+				ANIMATION_CONSTANTS.PULSE_BASE_ALPHA +
+				(Math.sin(performance.now() / ANIMATION_CONSTANTS.PULSE_FREQUENCY) *
+					ANIMATION_CONSTANTS.SINE_AMPLITUDE +
+					ANIMATION_CONSTANTS.SINE_AMPLITUDE) *
+					ANIMATION_CONSTANTS.PULSE_INTENSITY;
 			ctx.globalAlpha = pulseAlpha;
-			ctx.fillRect(hoveredTile.x * ppu, hoveredTile.y * ppu, ppu, ppu);
+			ctx.fillRect(hoveredTile.x, hoveredTile.y, 1, 1);
 			ctx.globalAlpha = 1.0;
 		}
-	}, [palette, ppu, position, selectedTool, mapRef, hoveredTileRef]);
+	}, [palette, mapRef, cameraRef, hoveredTileRef, selectedTool]);
 
 	useEffect(() => {
 		const animate = () => {
@@ -102,11 +139,7 @@ function TileMapCanvas({ mapRef, onRecenterAndFit }: TileMapCanvasProps) {
 		};
 	}, [render]);
 
-	return (
-		<div className="TileMap" ref={canvasContainerRef}>
-			<canvas ref={canvasRef} />
-		</div>
-	);
+	return <canvas className="TileMap" ref={canvasRef} />;
 }
 
 export default TileMapCanvas;

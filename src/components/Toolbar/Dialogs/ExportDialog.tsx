@@ -13,7 +13,7 @@ import {
 import { useTileMap } from "../../../contexts/TileMapContext";
 import { useToast } from "../../../contexts/ToastContext";
 import type { TileMap } from "../../../types";
-import { decodeAddress, encodeAddress } from "../../../utils";
+import { decodeAddress } from "../../../utils";
 
 interface ExportDialogProps {
 	mapRef: RefObject<TileMap>;
@@ -35,7 +35,6 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 		const exportTypes = [
 			{ label: "Position Key", value: "position-key" },
 			{ label: "Tile Key", value: "tile-key" },
-			{ label: "2D Array", value: "2d-array" },
 		];
 		const [selectedType, setSelectedType] = useState(exportTypes[0].value);
 		const [commentPalette, setCommentPalette] = useState(false);
@@ -48,7 +47,6 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 		};
 
 		const getExportValue = (): string => {
-			if (!mapRef.current) return "";
 			let result = "";
 
 			if (commentPalette) {
@@ -62,18 +60,15 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 			const data: Record<string, string> = {
 				"position-key": JSON.stringify(
 					Object.fromEntries(
-						Object.entries(mapRef.current?.data ?? {}).map(([k, v]) => [
-							toTemplate(k),
-							v,
-						]),
+						Object.entries(mapRef.current).map(([k, v]) => [toTemplate(k), v]),
 					),
 					null,
 					"\t",
 				),
 				"tile-key": JSON.stringify(
-					Object.values(mapRef.current?.data ?? {}).reduce(
+					Object.values(mapRef.current).reduce(
 						(acc, value) => {
-							acc[value] = Object.entries(mapRef.current?.data ?? {})
+							acc[value] = Object.entries(mapRef.current)
 								.filter(([, v]) => v === value)
 								.map(([k]) => toTemplate(k));
 							return acc;
@@ -83,16 +78,6 @@ const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
 					null,
 					"\t",
 				),
-				"2d-array": `[\n${Array.from(
-					{ length: mapRef.current?.height ?? 0 },
-					(_, y) =>
-						Array.from(
-							{ length: mapRef.current?.width ?? 0 },
-							(_, x) => mapRef.current?.data[encodeAddress(x, y)] ?? null,
-						),
-				)
-					.map((row) => `\t[${row.map((cell) => cell ?? "null").join(", ")}]`)
-					.join(",\n")}\n]`,
 			};
 			result += data[selectedType] ?? "";
 

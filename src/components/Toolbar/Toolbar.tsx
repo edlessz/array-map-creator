@@ -12,6 +12,7 @@ import {
 	Plus,
 	Upload,
 } from "lucide-react";
+import { confirmDialog } from "primereact/confirmdialog";
 import { type JSX, type RefObject, useRef, useState } from "react";
 import { useTileMap } from "../../contexts/TileMapContext";
 import type { TileMap, Tool } from "../../types";
@@ -22,15 +23,11 @@ import EditColorDialog, {
 import type { ExportDialogRef } from "./Dialogs/ExportDialog";
 import ExportDialog from "./Dialogs/ExportDialog";
 import ImportDialog, { type ImportDialogRef } from "./Dialogs/ImportDialog";
-import NewTileMapDialog, {
-	type NewTileMapDialogRef,
-} from "./Dialogs/NewTileMapDialog";
 
 interface ToolbarProps {
 	mapRef: RefObject<TileMap>;
-	recenterFn: () => void;
 }
-function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
+function Toolbar({ mapRef }: ToolbarProps) {
 	const {
 		palette,
 		selectedTool,
@@ -38,7 +35,7 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 		selectedColor,
 		setSelectedColor,
 	} = useTileMap();
-	const [hasMap, setHasMap] = useState(!!mapRef.current);
+
 	const toolButtons: {
 		icon: React.ReactNode;
 		tool: Tool;
@@ -56,9 +53,19 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 	const [hoveredColor, setHoveredColor] = useState<number | null>(null);
 
 	const editColorDialogRef = useRef<EditColorDialogRef>(null);
-	const newTileMapDialogRef = useRef<NewTileMapDialogRef>(null);
 	const importDialogRef = useRef<ImportDialogRef>(null);
 	const exportDialogRef = useRef<ExportDialogRef>(null);
+
+	const newTileMap = () =>
+		confirmDialog({
+			message:
+				"Are you sure you want to create a new map? This will overwrite the current map.",
+			header: "Confirm",
+			icon: "pi pi-exclamation-triangle",
+			accept: () => {
+				mapRef.current = {};
+			},
+		});
 
 	const getPaletteIcon = (colorId: number): JSX.Element => {
 		if (selectedColor === colorId)
@@ -70,17 +77,13 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 		<>
 			<div className="Toolbar">
 				<div>
-					<Button
-						icon={<FilePlus />}
-						onClick={() => newTileMapDialogRef.current?.open()}
-					/>
+					<Button icon={<FilePlus />} onClick={() => newTileMap()} />
 					<Button
 						icon={<Upload />}
 						onClick={() => importDialogRef.current?.open()}
 					/>
 					<Button
 						icon={<Download />}
-						disabled={!hasMap}
 						onClick={() => exportDialogRef.current?.open()}
 					/>
 				</div>
@@ -132,22 +135,7 @@ function Toolbar({ mapRef, recenterFn }: ToolbarProps) {
 				</div>
 			</div>
 			<EditColorDialog ref={editColorDialogRef} />
-			<NewTileMapDialog
-				ref={newTileMapDialogRef}
-				mapRef={mapRef}
-				onMapCreated={() => {
-					setHasMap(true);
-					recenterFn();
-				}}
-			/>
-			<ImportDialog
-				ref={importDialogRef}
-				mapRef={mapRef}
-				onImportSuccess={() => {
-					setHasMap(true);
-					recenterFn();
-				}}
-			/>
+			<ImportDialog ref={importDialogRef} mapRef={mapRef} />
 			<ExportDialog ref={exportDialogRef} mapRef={mapRef} />
 		</>
 	);

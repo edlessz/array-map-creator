@@ -1,7 +1,3 @@
-export type TileMap = {
-	data: Record<string, number>;
-	width: number;
-	height: number;
-} | null;
+export type TileMap = Record<string, number>;
 
 export type Tool = "pan" | "paint" | "erase" | "fill";
