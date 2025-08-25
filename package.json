@@ -9,7 +9,7 @@
 		"check": "npx biome check --write",
 		"preview": "vite preview",
 		"predeploy": "npm run build && npm run check",
-		"deploy": "gh-pages -d dist"
+		"deploy": "gh-pages -d dist -m \"chore(deploy): update gh-pages\""
 	},
 	"dependencies": {
 		"lucide-react": "^0.525.0",
