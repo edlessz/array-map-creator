@@ -7,8 +7,8 @@ import {
 	useState,
 } from "react";
 import { DEFAULT_PALETTE } from "../constants";
-import type { Tool } from "../types";
 import { useDb } from "../hooks/useDb";
+import type { Tool } from "../types";
 
 interface TileMapContextType {
 	palette: Record<number, string>;

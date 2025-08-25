@@ -5,8 +5,8 @@ import CanvasEditor from "./components/CanvasEditor/CanvasEditor";
 import Toolbar from "./components/Toolbar/Toolbar";
 import { TileMapProvider } from "./contexts/TileMapContext";
 import { ToastProvider } from "./contexts/ToastContext";
-import type { TileMap } from "./types";
 import { useDb } from "./hooks/useDb";
+import type { TileMap } from "./types";
 
 function App() {
 	const { loadMap } = useDb();

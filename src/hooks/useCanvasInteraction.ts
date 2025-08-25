@@ -1,8 +1,8 @@
 import { type RefObject, useEffect, useRef } from "react";
 import type { TileMap, Tool } from "../types";
 import { useCameraControls } from "./useCameraControls";
-import { useToolOperations } from "./useToolOperations";
 import { useDb } from "./useDb";
+import { useToolOperations } from "./useToolOperations";
 
 interface UseCanvasInteractionProps {
 	mapRef: RefObject<TileMap>;
