@@ -8,6 +8,7 @@ import {
 } from "react";
 import { DEFAULT_PALETTE } from "../constants";
 import type { Tool } from "../types";
+import { useDb } from "../hooks/useDb";
 
 interface TileMapContextType {
 	palette: Record<number, string>;
@@ -28,8 +29,11 @@ interface TileMapProviderProps {
 }
 
 export function TileMapProvider({ children }: TileMapProviderProps) {
-	const [palette, setPalette] =
-		useState<Record<number, string>>(DEFAULT_PALETTE);
+	const { savePalette, loadPalette } = useDb();
+	const [palette, setPalette] = useState<Record<number, string>>(
+		loadPalette() ?? DEFAULT_PALETTE,
+	);
+
 	const [selectedTool, setSelectedTool] = useState<Tool>("paint");
 	const [selectedColor, setSelectedColor] = useState<number>(1);
 
@@ -37,11 +41,13 @@ export function TileMapProvider({ children }: TileMapProviderProps) {
 		const existingIds = Object.keys(palette).map(Number);
 		const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 0;
 		setPalette({ ...palette, [newId]: color });
+		savePalette({ ...palette, [newId]: color });
 		setSelectedColor(newId);
 	};
 
 	const updateColor = (colorId: number, color: string) => {
 		setPalette({ ...palette, [colorId]: color });
+		savePalette({ ...palette, [colorId]: color });
 	};
 
 	const deleteColor = (colorId: number) => {

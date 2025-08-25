@@ -2,6 +2,7 @@ import { type RefObject, useEffect, useRef } from "react";
 import type { TileMap, Tool } from "../types";
 import { useCameraControls } from "./useCameraControls";
 import { useToolOperations } from "./useToolOperations";
+import { useDb } from "./useDb";
 
 interface UseCanvasInteractionProps {
 	mapRef: RefObject<TileMap>;
@@ -16,6 +17,7 @@ export const useCanvasInteraction = ({
 	selectedTool,
 	selectedColor,
 }: UseCanvasInteractionProps) => {
+	const { saveMap } = useDb();
 	const { cameraRef, panBy, zoomAt, screenToWorld } = useCameraControls({
 		canvasRef,
 	});
@@ -46,7 +48,10 @@ export const useCanvasInteraction = ({
 			window.addEventListener("mousemove", mouseMove);
 			window.addEventListener(
 				"mouseup",
-				() => window.removeEventListener("mousemove", mouseMove),
+				() => {
+					window.removeEventListener("mousemove", mouseMove);
+					saveMap(mapRef.current);
+				},
 				{ once: true },
 			);
 		};
@@ -93,7 +98,16 @@ export const useCanvasInteraction = ({
 			canvas?.removeEventListener("wheel", handleZoom);
 			window.removeEventListener("mousemove", handleHoveredTile);
 		};
-	}, [selectedTool, canvasRef, panBy, zoomAt, screenToWorld, executeTool]);
+	}, [
+		selectedTool,
+		canvasRef,
+		panBy,
+		zoomAt,
+		screenToWorld,
+		executeTool,
+		saveMap,
+		mapRef,
+	]);
 
 	return {
 		cameraRef,

@@ -6,9 +6,11 @@ import Toolbar from "./components/Toolbar/Toolbar";
 import { TileMapProvider } from "./contexts/TileMapContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import type { TileMap } from "./types";
+import { useDb } from "./hooks/useDb";
 
 function App() {
-	const mapRef = useRef<TileMap>({});
+	const { loadMap } = useDb();
+	const mapRef = useRef<TileMap>(loadMap() ?? {});
 
 	return (
 		<ToastProvider>
